@@ -1,5 +1,5 @@
-const canvas = document.querySelector('canvas');
-const c = canvas.getContext('2d');
+const canvas = document.querySelector("canvas");
+const c = canvas.getContext("2d");
 
 canvas.width = 1024;
 canvas.height = 576;
@@ -9,24 +9,36 @@ c.fillRect(0, 0, canvas.width, canvas.height);
 const gravity = 0.7;
 
 class Sprite {
-  constructor({ position, velocity }) {
+  constructor({ position, velocity, color = "blue" }) {
     this.position = position;
     this.velocity = velocity;
+    this.width = 50;
     this.height = 150;
     this.lastKey;
+
     this.attackBox = {
-        position: this.position,
-        width: 100,
-        height: 50
-    }
+      position: this.position,
+      width: 100,
+      height: 50,
+    };
+    this.color = color;
+    this.isAttacking = false;
   }
 
   draw() {
-    c.fillStyle = 'blue';
-    c.fillRect(this.position.x, this.position.y, 50, this.height);
+    c.fillStyle = this.color;
+    c.fillRect(this.position.x, this.position.y, this.width, this.height);
 
-    c.fillStyle = 'green';
-    c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+    //Attack box
+    if (this.isAttacking) {
+      c.fillStyle = "green";
+      c.fillRect(
+        this.attackBox.position.x,
+        this.attackBox.position.y,
+        this.attackBox.width,
+        this.attackBox.height
+      );
+    }
   }
 
   update() {
@@ -40,6 +52,13 @@ class Sprite {
     } else {
       this.velocity.y += gravity;
     }
+  }
+
+  attack() {
+    this.isAttacking = true;
+    setTimeout(() => {
+      this.isAttacking = false;
+    }, 100);
   }
 }
 
@@ -65,6 +84,7 @@ const enemy = new Sprite({
     x: 0,
     y: 0,
   },
+  color: "red",
 });
 
 //enemy.draw();
@@ -89,71 +109,84 @@ const keys = {
   },
 };
 
-
-
-
 function animate() {
   window.requestAnimationFrame(animate);
-  c.fillStyle = 'black';
+  c.fillStyle = "black";
   c.fillRect(0, 0, canvas.width, canvas.height);
   player.update();
   enemy.update();
 
   player.velocity.x = 0;
   enemy.velocity.x = 0;
-
-  if (keys.a.pressed && player.lastKey === 'a') {
+  //Player movement
+  if (keys.a.pressed && player.lastKey === "a") {
     player.velocity.x = -5;
-  } else if (keys.d.pressed && player.lastKey === 'd') {
+  } else if (keys.d.pressed && player.lastKey === "d") {
     player.velocity.x = 5;
   }
-
-  if (keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft') {
+  //Enemy movement
+  if (keys.ArrowLeft.pressed && enemy.lastKey === "ArrowLeft") {
     enemy.velocity.x = -5;
-  } else if (keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight') {
+  } else if (keys.ArrowRight.pressed && enemy.lastKey === "ArrowRight") {
     enemy.velocity.x = 5;
+  }
+
+  //Detect for collision
+
+  if (
+    player.attackBox.position.x + player.attackBox.width >= enemy.position.x &&
+    player.attackBox.position.x <= enemy.position.x + enemy.width &&
+    player.attackBox.position.y + player.attackBox.height >= enemy.position.y &&
+    player.attackBox.position.y <= enemy.position.y + enemy.height &&
+    player.isAttacking
+  ) {
+    player.isAttacking = false;
+    console.log("go");
   }
 }
 
 animate();
 
-window.addEventListener('keydown', (event) => {
-  if (event.key === 'd') {
+window.addEventListener("keydown", (event) => {
+  if (event.key === "d") {
     keys.d.pressed = true;
-    player.lastKey = 'd';
-  } else if (event.key === 'a') {
+    player.lastKey = "d";
+  } else if (event.key === "a") {
     keys.a.pressed = true;
-    player.lastKey = 'a';
-  }else if (event.key === 'w') {
-   player.velocity.y = -20;
+    player.lastKey = "a";
+  } else if (event.key === "w") {
+    player.velocity.y = -20;
+  } else if (event.key === " ") {
+    player.attack();
   }
 
-  if (event.key === 'ArrowRight') {
+  if (event.key === "ArrowRight") {
     keys.ArrowRight.pressed = true;
-    enemy.lastKey = 'ArrowRight';
-  } else if (event.key === 'ArrowLeft') {
+    enemy.lastKey = "ArrowRight";
+  } else if (event.key === "ArrowLeft") {
     keys.ArrowLeft.pressed = true;
-    enemy.lastKey = 'ArrowLeft';
-  }else if (event.key === 'ArrowUp') {
-   enemy.velocity.y = -20;
+    enemy.lastKey = "ArrowLeft";
+  } else if (event.key === "ArrowUp") {
+    enemy.velocity.y = -20;
+  } else if (event.key === "p") {
+    enemy.attack();
   }
-  
 });
 
-window.addEventListener('keyup', (event) => {
-  if (event.key === 'd') {
+window.addEventListener("keyup", (event) => {
+  if (event.key === "d") {
     keys.d.pressed = false;
-  } else if (event.key === 'a') {
+  } else if (event.key === "a") {
     keys.a.pressed = false;
-  }else if (event.key === 'w') {
+  } else if (event.key === "w") {
     keys.w.pressed = false;
   }
 
-  if (event.key === 'ArrowRight') {
+  if (event.key === "ArrowRight") {
     keys.ArrowRight.pressed = false;
-  } else if (event.key === 'ArrowLeft') {
+  } else if (event.key === "ArrowLeft") {
     keys.ArrowLeft.pressed = false;
-  }else if (event.key === 'ArrowUp') {
+  } else if (event.key === "ArrowUp") {
     keys.ArrowUp.pressed = false;
   }
 });

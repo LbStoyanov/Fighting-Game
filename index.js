@@ -6,7 +6,7 @@ canvas.height = 576;
 
 c.fillRect(0, 0, canvas.width, canvas.height);
 
-const gravity = 0.2;
+const gravity = 0.7;
 
 class Sprite {
   constructor({ position, velocity }) {
@@ -14,11 +14,19 @@ class Sprite {
     this.velocity = velocity;
     this.height = 150;
     this.lastKey;
+    this.attackBox = {
+        position: this.position,
+        width: 100,
+        height: 50
+    }
   }
 
   draw() {
     c.fillStyle = 'blue';
     c.fillRect(this.position.x, this.position.y, 50, this.height);
+
+    c.fillStyle = 'green';
+    c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
   }
 
   update() {
@@ -82,7 +90,7 @@ const keys = {
 };
 
 
-let lastKeyPressed;
+
 
 function animate() {
   window.requestAnimationFrame(animate);
@@ -94,16 +102,16 @@ function animate() {
   player.velocity.x = 0;
   enemy.velocity.x = 0;
 
-  if (keys.a.pressed && lastKeyPressed === 'a') {
-    player.velocity.x = -1;
-  } else if (keys.d.pressed && lastKeyPressed === 'd') {
-    player.velocity.x = 1;
+  if (keys.a.pressed && player.lastKey === 'a') {
+    player.velocity.x = -5;
+  } else if (keys.d.pressed && player.lastKey === 'd') {
+    player.velocity.x = 5;
   }
 
   if (keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft') {
-    enemy.velocity.x = -1;
+    enemy.velocity.x = -5;
   } else if (keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight') {
-    enemy.velocity.x = 1;
+    enemy.velocity.x = 5;
   }
 }
 
@@ -112,12 +120,12 @@ animate();
 window.addEventListener('keydown', (event) => {
   if (event.key === 'd') {
     keys.d.pressed = true;
-    lastKeyPressed = 'd';
+    player.lastKey = 'd';
   } else if (event.key === 'a') {
     keys.a.pressed = true;
-    lastKeyPressed = 'a';
+    player.lastKey = 'a';
   }else if (event.key === 'w') {
-   player.velocity.y = -10;
+   player.velocity.y = -20;
   }
 
   if (event.key === 'ArrowRight') {
@@ -127,7 +135,7 @@ window.addEventListener('keydown', (event) => {
     keys.ArrowLeft.pressed = true;
     enemy.lastKey = 'ArrowLeft';
   }else if (event.key === 'ArrowUp') {
-   enemy.velocity.y = -10;
+   enemy.velocity.y = -20;
   }
   
 });

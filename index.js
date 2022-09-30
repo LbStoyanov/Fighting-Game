@@ -164,7 +164,7 @@ function animate() {
     player.isAttacking
   ) {
     player.isAttacking = false;
-    console.log("go");
+    document.getElementById('enemyHealth').style.width = '20%';
   }
 
   if (
